@@ -1,5 +1,14 @@
-import { SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { LogBox, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { useFonts, Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto';
+import { Platform } from 'react-native';
+
+import { NativeBaseProvider } from 'native-base';
+import { useEffect } from 'react';
+import { Loading } from 'src/components/Loading';
+
+import { THEME } from 'src/theme';
+import { Routes } from 'src/routes';
+
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -7,30 +16,20 @@ export default function App() {
     Roboto_700Bold,
   });
 
+  useEffect(() => {
+    LogBox.ignoreLogs(['In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.']);
+  }, []);
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#202024'
-      }}
-    >
+    <NativeBaseProvider theme={THEME}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
         translucent
       />
-      <View
-        style={{
-          backgroundColor: '#202024',
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        {
-          fontsLoaded ? <Text style={{ fontFamily: 'Roboto_700Bold', fontSize: 20, color: '#00875F' }}>Welcome to the Gym!</Text> : <View />
-        }
-      </View>
-    </SafeAreaView>
+      {
+        fontsLoaded ? <Routes /> : <Loading />
+      }
+    </NativeBaseProvider>
   );
 }
