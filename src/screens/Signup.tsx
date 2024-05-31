@@ -36,8 +36,23 @@ export function SignUp() {
     resolver: yupResolver(signUpSchema)
   });
 
-  function handleSignUp(data: FormDataProps) {
-    console.log(data);
+  async function handleSignUp(data: FormDataProps) {
+    try {
+      const response = await fetch('http://192.168.1.243:3333/users', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: data.name, email: data.email, password: data.password }),
+      })
+        .then(response => response.json())
+        .then(data => console.log(data))
+
+      console.log('usuário cadastrado com sucesso');
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
