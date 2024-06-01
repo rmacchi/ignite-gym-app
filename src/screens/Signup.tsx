@@ -1,6 +1,6 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
-import { VStack, Image, Text, Center, Heading, ScrollView } from 'native-base';
+import { VStack, Image, Text, Center, Heading, ScrollView, useToast } from 'native-base';
 
 
 import LogoSvg from '@assets/logo.svg';
@@ -10,6 +10,10 @@ import { Button } from 'src/components/Button';
 
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { api } from 'src/services/api';
+import { AppError } from 'src/utils/AppError';
+import { useState } from 'react';
+import { useAuth } from 'src/hooks/useAuth';
 
 type FormDataProps = {
   name: string;
@@ -26,6 +30,11 @@ const signUpSchema = yup.object({
 });
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const toast = useToast();
+  const { signIn } = useAuth();
+
   const navigation = useNavigation();
 
   function handleGoBack() {
@@ -38,21 +47,37 @@ export function SignUp() {
 
   async function handleSignUp(data: FormDataProps) {
     try {
-      const response = await fetch('http://192.168.1.243:3333/users', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: data.name, email: data.email, password: data.password }),
-      })
-        .then(response => response.json())
-        .then(data => console.log(data))
+      setIsLoading(true);
 
-      console.log('usuário cadastrado com sucesso');
+      await api.post('/users', data);
+      await signIn(data.email, data.password);
+
     } catch (error) {
-      console.log(error);
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : 'Não foi possível criar a conta. Tente novamente mais tarde';
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500'
+      })
     }
+    // try {
+    //   const response = await fetch('http://192.168.1.243:3333/users', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ name: data.name, email: data.email, password: data.password }),
+    //   })
+    //     .then(response => response.json())
+    //     .then(data => console.log(data))
+
+    //   console.log('usuário cadastrado com sucesso');
+    // } catch (error) {
+    //   console.log(error);
+    // }
   }
 
   return (
@@ -151,6 +176,7 @@ export function SignUp() {
           <Button
             title="Criar e acessar"
             onPress={handleSubmit(handleSignUp)}
+            isLoading={isLoading}
           />
         </Center>
 
