@@ -1,6 +1,5 @@
-import { LogBox, SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { LogBox, StatusBar } from 'react-native';
 import { useFonts, Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto';
-import { Platform } from 'react-native';
 
 import { NativeBaseProvider } from 'native-base';
 import { useEffect } from 'react';
@@ -8,6 +7,8 @@ import { Loading } from 'src/components/Loading';
 
 import { THEME } from 'src/theme';
 import { Routes } from 'src/routes';
+
+import { AuthContextProvider } from 'src/contexts/AuthContext';
 
 
 export default function App() {
@@ -27,9 +28,9 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
-      {
-        fontsLoaded ? <Routes /> : <Loading />
-      }
+      <AuthContextProvider>
+        {fontsLoaded ? <Routes /> : <Loading />}
+      </AuthContextProvider>
     </NativeBaseProvider>
   );
 }
